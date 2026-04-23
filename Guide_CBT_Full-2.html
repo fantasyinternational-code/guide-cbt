@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Guide — Pre Exam CBT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE SDK  v12.12.0
+═══════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc,
+         updateDoc, serverTimestamp }             from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyDM1C9ngvVuknObaMDjQ0ARKfvcxAkOn7c",
+  authDomain:        "guide-aea7c.firebaseapp.com",
+  projectId:         "guide-aea7c",
+  storageBucket:     "guide-aea7c.firebasestorage.app",
+  messagingSenderId: "407663215665",
+  appId:             "1:407663215665:web:33624ac28eff846a40c110"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── expose to global scope so non-module scripts can call ──
+window._db        = db;
+window._doc       = doc;
+window._getDoc    = getDoc;
+window._setDoc    = setDoc;
+window._updateDoc = updateDoc;
+window._serverTS  = serverTimestamp;
+window._fbReady   = true;
+
+// signal app to init
+document.dispatchEvent(new Event('fb-ready'));
+</script>
+
+<style>
+/* ════════════════════════════════════════════════
+   THEME VARIABLES
+════════════════════════════════════════════════ */
+:root {
+  --gold:     #C9922A;
+  --gold-hi:  #E4A535;
+  --gold-dim: rgba(201,146,42,.13);
+  --correct:  #2D6A4F;
+  --wrong:    #C1440E;
+  --font-d:   'Cormorant Garamond', serif;
+  --font-b:   'Outfit', sans-serif;
+  --r:        12px;
+  --r-lg:     18px;
+}
+
+body.dark {
+  --bg:        #0C0C0F;
+  --surf-1:    #131317;
+  --surf-2:    #1A1A20;
+  --surf-3:    #22222A;
+  --border:    rgba(255,255,255,.07);
+  --border-md: rgba(255,255,255,.13);
+  --text:      #EDE9E0;
+  --text-2:    #9B9690;
+  --text-3:    #4A4845;
+}
+
+body.light {
+  --bg:        #F4F0E6;
+  --surf-1:    #FDFBF7;
+  --surf-2:    #F0EBE0;
+  --surf-3:    #E5DED1;
+  --border:    rgba(0,0,0,.08);
+  --border-md: rgba(0,0,0,.14);
+  --text:      #181818;
+  --text-2:    #6B6359;
+  --text-3:    #ABA49A;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: var(--font-b);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  transition: background .35s, color .35s;
+}
+
+/* grain on dark */
+body.dark::after {
+  content:''; position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0;
+}
+
+/* ════════════════════════════════════════════════
+   SCREENS
+════════════════════════════════════════════════ */
+.screen {
+  display: none; width:100%; max-width:480px;
+  min-height:100vh; flex-direction:column;
+  padding:0 18px 100px;
+  position:relative; z-index:1;
+}
+.screen.active { display:flex; }
+
+@keyframes rise    { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes popIn   { 0%{opacity:0;transform:scale(.6) translateY(20px)} 60%{opacity:1;transform:scale(1.04) translateY(-3px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes slideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes barGrow { from{width:0} to{width:180px} }
+@keyframes spin    { to{transform:rotate(360deg)} }
+
+.screen.active > * { animation: rise .45s ease both; }
+.screen.active > *:nth-child(2){animation-delay:.07s}
+.screen.active > *:nth-child(3){animation-delay:.14s}
+.screen.active > *:nth-child(4){animation-delay:.21s}
+.screen.active > *:nth-child(5){animation-delay:.28s}
+.screen.active > *:nth-child(6){animation-delay:.35s}
+
+/* ════════════════════════════════════════════════
+   SHARED COMPONENTS
+════════════════════════════════════════════════ */
+
+/* top bar */
+.top-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 0 14px;
+  border-bottom:1px solid var(--border);
+}
+.top-brand { font-family:var(--font-d); font-size:22px; font-weight:700; color:var(--gold); }
+.top-right  { display:flex; align-items:center; gap:8px; }
+
+.coin-chip {
+  display:flex; align-items:center; gap:5px;
+  background:var(--gold-dim); border:1px solid rgba(201,146,42,.28);
+  border-radius:999px; padding:5px 12px;
+  font-size:12px; font-weight:700; color:var(--gold);
+}
+
+.theme-tog {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--surf-2); border:1px solid var(--border-md);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:16px; transition:background .16s;
+}
+.theme-tog:hover { background:var(--surf-3); }
+
+/* page headings */
+.pg-eye   { font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:7px; }
+.pg-title { font-family:var(--font-d); font-size:30px; font-weight:700; color:var(--text); line-height:1.1; }
+.pg-sub   { font-size:13px; color:var(--text-2); line-height:1.65; margin-top:5px; }
+
+/* divider */
+.div { height:1px; background:var(--border); margin:16px 0; }
+
+/* buttons */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:14px 22px;
+  border-radius:10px; border:none;
+  font-family:var(--font-b); font-size:15px; font-weight:600;
+  cursor:pointer; transition:opacity .18s, transform .12s;
+  position:relative; overflow:hidden;
+}
+.btn:active { transform:scale(.98); }
+.btn::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 60%); }
+.btn-gold    { background:var(--gold); color:#fff; }
+.btn-gold:hover { opacity:.9; }
+.btn-outline { background:transparent; color:var(--gold); border:1.5px solid rgba(201,146,42,.4); }
+.btn-outline:hover { background:var(--gold-dim); }
+.btn-outline::after { display:none; }
+.btn-ghost  { background:var(--surf-2); color:var(--text); border:1px solid var(--border-md); }
+.btn-ghost:hover { background:var(--surf-3); }
+.btn-ghost::after { display:none; }
+.btn-danger { background:var(--wrong); color:#fff; }
+.btn:disabled { background:var(--surf-3)!important; color:var(--text-3)!important; cursor:default; }
+.btn:disabled::after { display:none; }
+.btn-sm { padding:9px 18px; font-size:13px; width:auto; }
+.btn-row { display:flex; gap:10px; margin-top:14px; }
+
+/* fixed bottom bar */
+.bot-bar {
+  position:fixed; bottom:0; left:50%;
+  transform:translateX(-50%);
+  width:100%; max-width:480px;
+  padding:14px 18px 22px;
+  background:linear-gradient(to top, var(--bg) 65%, transparent);
+  z-index:50;
+}
+
+/* form */
+.f-block { margin-bottom:14px; }
+.f-block label {
+  display:block; font-size:10px; font-weight:600;
+  letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-2); margin-bottom:7px;
+}
+.f-block input {
+  width:100%; padding:13px 15px;
+  background:var(--surf-2); border:1.5px solid var(--border-md);
+  border-radius:10px; color:var(--text);
+  font-family:var(--font-b); font-size:15px; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.f-block input::placeholder { color:var(--text-3); }
+.f-block input:focus {
+  border-color:rgba(201,146,42,.55);
+  box-shadow:0 0 0 3px var(--gold-dim);
+}
+.f-hint  { font-size:11px; color:var(--text-3); margin-top:5px; line-height:1.5; }
+.f-error { font-size:11px; color:var(--wrong);  margin-top:5px; display:none; }
+
+/* fake select (department) */
+.fake-select {
+  width:100%; padding:13px 15px;
+  background:var(--surf-2); border:1.5px solid var(--border-md);
+  border-radius:10px; color:var(--text-3);
+  font-family:var(--font-b); font-size:15px;
+  cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+  transition:border-color .16s;
+}
+.fake-select:hover { border-color:var(--border-md); }
+.fake-select .arr { font-size:12px; color:var(--text-3); }
+
+/* breadcrumb */
+.breadcrumb {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--surf-2); border:1px solid var(--border-md);
+  border-radius:999px; padding:6px 14px;
+  font-size:12px; font-weight:500; color:var(--text-2);
+  cursor:pointer; transition:border-color .14s; margin-top:4px;
+}
+.breadcrumb:hover { border-color:rgba(201,146,42,.35); }
+.bc-arr { color:var(--gold); }
+
+/* info banner */
+.info-banner {
+  display:flex; align-items:flex-start; gap:10px;
+  background:var(--gold-dim); border:1px solid rgba(201,146,42,.2);
+  border-radius:10px; padding:12px 14px;
+  margin:12px 0; font-size:12px; color:var(--text-2); line-height:1.55;
+}
+
+/* ════════════════════════════════════════════════
+   SCREEN: THEME PICKER
+════════════════════════════════════════════════ */
+#s-theme {
+  justify-content:center; align-items:center;
+  gap:0; padding:0 24px; text-align:center;
+}
+
+.th-logo    { font-family:var(--font-d); font-size:52px; font-weight:700; color:var(--gold); margin-bottom:4px; animation:rise .6s ease both; }
+.th-tag     { font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--text-2); margin-bottom:48px; animation:rise .6s .1s ease both; }
+.th-prompt  { font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text-2); margin-bottom:18px; animation:rise .6s .2s ease both; }
+
+.th-cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; animation:rise .6s .3s ease both; }
+
+.th-card {
+  border-radius:16px; padding:22px 14px 18px;
+  cursor:pointer; border:2px solid transparent;
+  transition:border-color .16s, transform .12s;
+}
+.th-card:active { transform:scale(.97); }
+
+.tc-dark  { background:#131317; border-color:rgba(255,255,255,.08); }
+.tc-light { background:#FDFBF7; border-color:rgba(0,0,0,.08); }
+.tc-dark:hover,.tc-light:hover { border-color:var(--gold); }
+
+.tc-prev { width:100%; height:72px; border-radius:9px; margin-bottom:12px; overflow:hidden; }
+.tc-dark  .tc-prev { background:#1A1A20; }
+.tc-light .tc-prev { background:#EDE9E0; }
+
+.tc-bar  { height:7px; border-radius:3px; margin:9px 9px 5px; }
+.tc-dark  .tc-bar { background:#22222A; }
+.tc-light .tc-bar { background:#DDD4C0; }
+
+.tc-gold { height:7px; border-radius:3px; margin:0 9px; width:46%; background:var(--gold); }
+
+.tc-name { font-size:13px; font-weight:600; }
+.tc-dark  .tc-name { color:#EDE9E0; }
+.tc-light .tc-name { color:#181818; }
+
+.tc-desc { font-size:11px; margin-top:3px; }
+.tc-dark  .tc-desc { color:#6A6560; }
+.tc-light .tc-desc { color:#ABA49A; }
+
+/* ════════════════════════════════════════════════
+   SCREEN: SPLASH
+════════════════════════════════════════════════ */
+#s-splash { justify-content:center; align-items:center; padding:0; }
+
+.sp-inner { text-align:center; }
+.sp-guide    { font-family:var(--font-d); font-size:72px; font-weight:700; color:var(--gold); letter-spacing:-2px; line-height:1; opacity:0; }
+.sp-by       { font-family:var(--font-d); font-style:italic; font-size:22px; color:var(--text-2); margin-top:8px; opacity:0; letter-spacing:1px; }
+.sp-bar      { width:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:18px auto 0; border-radius:1px; }
+.sp-scholars { font-size:10px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--text-3); margin-top:10px; opacity:0; }
+
+.sp-go .sp-guide    { animation:popIn   .7s .1s cubic-bezier(.34,1.56,.64,1) both; }
+.sp-go .sp-by       { animation:slideUp .5s .65s ease both; }
+.sp-go .sp-bar      { animation:barGrow .6s .8s ease both; }
+.sp-go .sp-scholars { animation:slideUp .5s .95s ease both; }
+
+/* ════════════════════════════════════════════════
+   SCREEN: LOGIN
+════════════════════════════════════════════════ */
+.login-note { font-size:11px; color:var(--text-3); text-align:center; line-height:1.9; margin-top:14px; }
+
+/* ════════════════════════════════════════════════
+   SCREEN: FEATURES
+════════════════════════════════════════════════ */
+.feat-cards { display:flex; flex-direction:column; gap:12px; margin-top:8px; }
+
+.feat-card {
+  display:flex; align-items:center; gap:18px;
+  background:var(--surf-1); border:2px solid var(--border);
+  border-radius:16px; padding:24px 18px;
+  cursor:pointer; transition:border-color .15s, background .15s, transform .12s;
+  position:relative; overflow:hidden;
+}
+.feat-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:transparent; transition:background .15s; }
+.feat-card:hover { border-color:var(--border-md); background:var(--surf-2); transform:translateY(-1px); }
+.feat-card:hover::before { background:var(--gold); }
+.feat-card:active { transform:scale(.99); }
+.feat-card.locked { opacity:.55; cursor:default; }
+.feat-card.locked:hover { border-color:var(--border); background:var(--surf-1); transform:none; }
+.feat-card.locked:hover::before { background:transparent; }
+
+.feat-ico  { font-size:34px; flex-shrink:0; }
+.feat-body { flex:1; }
+.feat-name { font-family:var(--font-d); font-size:22px; font-weight:700; color:var(--text); }
+.feat-desc { font-size:12px; color:var(--text-2); margin-top:5px; line-height:1.5; }
+.feat-arr  { font-size:20px; color:var(--gold); flex-shrink:0; opacity:0; transition:opacity .14s, transform .14s; }
+.feat-card:not(.locked):hover .feat-arr { opacity:1; transform:translateX(3px); }
+
+.feat-badge {
+  position:absolute; top:11px; right:11px;
+  font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  padding:3px 9px; border-radius:999px;
+  background:var(--surf-3); color:var(--text-3); border:1px solid var(--border-md);
+}
+
+/* ════════════════════════════════════════════════
+   SCREEN: COURSE SELECT
+════════════════════════════════════════════════ */
+.search-wrap { position:relative; margin-bottom:7px; }
+.search-wrap input { padding-left:40px; background:var(--surf-1); border:1.5px solid var(--border-md); border-radius:10px; color:var(--text); font-family:var(--font-b); font-size:14px; outline:none; width:100%; padding-top:13px; padding-bottom:13px; transition:border-color .18s; }
+.search-wrap input:focus { border-color:rgba(201,146,42,.45); }
+.s-ico { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none; }
+
+.course-list { list-style:none; border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
+
+.c-item {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 15px; border-bottom:1px solid var(--border);
+  cursor:pointer; background:var(--surf-1); transition:background .12s; user-select:none;
+}
+.c-item:last-child { border-bottom:none; }
+.c-item:hover { background:var(--surf-2); }
+.c-item.sel   { background:var(--gold-dim); }
+.c-item.dim   { opacity:.45; pointer-events:none; }
+
+.radio-ring {
+  width:20px; height:20px; border-radius:50%;
+  border:2px solid var(--border-md); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .13s, background .13s;
+}
+.c-item.sel .radio-ring { border-color:var(--gold); background:var(--gold); }
+.radio-dot { width:8px; height:8px; border-radius:50%; background:#fff; opacity:0; transition:opacity .13s; }
+.c-item.sel .radio-dot { opacity:1; }
+
+.c-info { flex:1; }
+.c-code { font-size:15px; font-weight:600; color:var(--text); }
+.c-item.sel .c-code { color:var(--gold); }
+.c-name { font-size:12px; color:var(--text-2); margin-top:2px; }
+
+.c-tag { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:3px 9px; border-radius:999px; }
+.t-on   { background:rgba(45,106,79,.15); color:var(--correct); border:1px solid rgba(45,106,79,.2); }
+.t-soon { background:var(--surf-3); color:var(--text-3); border:1px solid var(--border-md); }
+
+/* ════════════════════════════════════════════════
+   SCREEN: MODE SELECT
+════════════════════════════════════════════════ */
+.trial-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surf-1); border:1px solid var(--border);
+  border-radius:10px; padding:12px 15px; margin-bottom:13px;
+}
+.tb-lbl { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); }
+.tb-val { font-size:13px; color:var(--text-2); margin-top:3px; }
+.tb-dots { display:flex; gap:6px; }
+.tdot    { width:10px; height:10px; border-radius:50%; background:var(--surf-3); border:1px solid var(--border-md); }
+.tdot.on { background:var(--gold); border-color:var(--gold); }
+
+.modes-list { display:flex; flex-direction:column; gap:9px; }
+
+.mode-row {
+  display:flex; align-items:center; gap:14px;
+  background:var(--surf-1); border:2px solid var(--border);
+  border-radius:14px; padding:16px 15px;
+  cursor:pointer; transition:border-color .13s, background .13s;
+  position:relative; overflow:hidden;
+}
+.mode-row::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:transparent; transition:background .13s; }
+.mode-row:hover { border-color:var(--border-md); background:var(--surf-2); }
+.mode-row:hover::before { background:var(--gold); }
+.mode-row.locked { opacity:.6; cursor:default; }
+.mode-row.locked:hover { border-color:var(--border); background:var(--surf-1); }
+.mode-row.locked:hover::before { background:transparent; }
+
+.m-emo  { font-size:26px; flex-shrink:0; }
+.m-body { flex:1; }
+.m-name { font-size:15px; font-weight:600; color:var(--text); margin-bottom:3px; }
+.m-desc { font-size:12px; color:var(--text-2); line-height:1.4; }
+.m-badge { font-size:9px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:4px 10px; border-radius:999px; flex-shrink:0; }
+.mb-free  { background:rgba(45,106,79,.14); color:var(--correct); border:1px solid rgba(45,106,79,.2); }
+.mb-pro   { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(201,146,42,.25); }
+.mb-coins { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(201,146,42,.25); }
+
+.up-strip {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:var(--gold-dim); border:1px solid rgba(201,146,42,.22);
+  border-radius:14px; padding:15px 16px; margin-top:13px;
+}
+.us-title { font-size:14px; font-weight:600; color:var(--gold); }
+.us-sub   { font-size:11px; color:var(--text-2); margin-top:3px; }
+.btn-wa {
+  background:#25D366; color:#fff; border:none; border-radius:8px;
+  padding:9px 16px; font-family:var(--font-b); font-size:12px; font-weight:700;
+  cursor:pointer; white-space:nowrap; flex-shrink:0; transition:opacity .15s;
+}
+.btn-wa:hover { opacity:.88; }
+
+/* ════════════════════════════════════════════════
+   SCREEN: QUIZ
+════════════════════════════════════════════════ */
+.quiz-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+.q-counter { font-size:12px; font-weight:600; color:var(--text-2); letter-spacing:1px; }
+
+.timer-pill {
+  background:var(--surf-2); border:1px solid var(--border-md);
+  color:var(--text); font-size:13px; font-weight:700;
+  padding:5px 14px; border-radius:999px;
+  font-variant-numeric:tabular-nums; display:none;
+}
+.timer-pill.warn { background:var(--wrong); color:#fff; border-color:var(--wrong); }
+
+.prog-track { width:100%; height:4px; background:var(--surf-3); border-radius:99px; margin-bottom:16px; overflow:hidden; }
+.prog-fill  { height:100%; background:var(--gold); border-radius:99px; transition:width .3s; }
+
+.q-topic-tag {
+  display:inline-block; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+  color:var(--gold); background:var(--gold-dim); padding:3px 10px; border-radius:999px; margin-bottom:9px;
+}
+
+.q-text { font-family:var(--font-d); font-size:clamp(17px,4.5vw,22px); line-height:1.55; margin-bottom:17px; }
+
+.opts-list { list-style:none; display:flex; flex-direction:column; gap:9px; }
+
+.opt-btn {
+  display:flex; align-items:center; gap:12px;
+  padding:13px 15px; border:2px solid var(--border);
+  border-radius:var(--r); background:var(--surf-1);
+  cursor:pointer; font-family:var(--font-b); font-size:14px; color:var(--text);
+  text-align:left; width:100%; line-height:1.4;
+  transition:border-color .12s, background .12s;
+}
+.opt-btn:hover:not(:disabled) { border-color:rgba(201,146,42,.5); background:var(--surf-2); }
+.opt-btn.correct { border-color:var(--correct); background:rgba(45,106,79,.1); }
+.opt-btn.wrong   { border-color:var(--wrong);   background:rgba(193,68,14,.1); }
+.opt-btn:disabled { cursor:default; }
+
+.opt-letter {
+  min-width:26px; height:26px; border-radius:50%;
+  background:var(--surf-2); border:1.5px solid var(--border-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; flex-shrink:0;
+}
+
+.expl-box {
+  margin-top:12px; padding:12px 15px;
+  background:var(--gold-dim); border-left:4px solid var(--gold);
+  border-radius:0 8px 8px 0; font-size:13px; line-height:1.6; display:none;
+}
+
+.quiz-foot { margin-top:16px; display:flex; justify-content:flex-end; }
+
+/* ════════════════════════════════════════════════
+   SCREEN: RESULTS
+════════════════════════════════════════════════ */
+.ring-wrap { display:flex; flex-direction:column; align-items:center; padding:16px 0; }
+.ring { position:relative; width:110px; height:110px; }
+.ring svg { transform:rotate(-90deg); }
+.ring-label { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-score { font-family:var(--font-d); font-size:28px; color:var(--gold); line-height:1; }
+.ring-total { font-size:11px; color:var(--text-2); }
+.res-msg { font-size:15px; font-weight:600; margin-top:12px; text-align:center; }
+
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:15px 0; }
+.stat-box  { background:var(--surf-1); border:1px solid var(--border); border-radius:var(--r); padding:12px 8px; text-align:center; }
+.stat-val  { font-family:var(--font-d); font-size:20px; color:var(--gold); }
+.stat-lbl  { font-size:10px; color:var(--text-2); margin-top:3px; text-transform:uppercase; letter-spacing:1px; }
+
+.rev-label { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); margin-bottom:9px; }
+.rev-item  { border:1px solid var(--border); border-radius:9px; margin-bottom:7px; background:var(--surf-1); }
+.rev-head  { display:flex; align-items:center; gap:10px; padding:11px 14px; font-size:13px; }
+.rev-dot   { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.rev-dot.ok  { background:var(--correct); }
+.rev-dot.bad { background:var(--wrong); }
+
+/* ════════════════════════════════════════════════
+   MODAL
+════════════════════════════════════════════════ */
+.overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.6);
+  display:none; align-items:center; justify-content:center;
+  z-index:100; padding:20px; backdrop-filter:blur(4px);
+}
+.overlay.open { display:flex; animation:fadeIn .2s ease; }
+
+.modal {
+  background:var(--surf-1); border:1px solid var(--border-md);
+  border-radius:20px; padding:28px 22px;
+  width:100%; max-width:340px; text-align:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.4);
+  animation:rise .25s ease;
+}
+.m-ico  { font-size:40px; margin-bottom:12px; }
+.m-ttl  { font-family:var(--font-d); font-size:24px; color:var(--text); margin-bottom:6px; }
+.m-body { font-size:13px; color:var(--text-2); line-height:1.65; margin-bottom:20px; }
+.m-opts { display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+.m-cancel { font-size:12px; color:var(--text-3); cursor:pointer; text-decoration:underline; }
+.m-cancel:hover { color:var(--text-2); }
+
+.m-opt {
+  display:flex; align-items:center; gap:12px;
+  padding:13px 14px; border:2px solid var(--border);
+  border-radius:var(--r); cursor:pointer; background:var(--surf-2);
+  font-family:var(--font-b); text-align:left; width:100%;
+  transition:border-color .13s, background .13s;
+}
+.m-opt:hover { border-color:rgba(201,146,42,.45); background:var(--gold-dim); }
+.m-opt-ico { font-size:22px; flex-shrink:0; }
+.m-opt-lbl { font-size:14px; font-weight:600; color:var(--text); }
+.m-opt-sub { font-size:11px; color:var(--text-2); margin-top:2px; }
+
+/* ad countdown */
+.ad-ring {
+  width:76px; height:76px; border-radius:50%;
+  border:5px solid var(--gold); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-d); font-size:28px; color:var(--gold);
+  margin:0 auto 14px;
+}
+.ad-prog { background:var(--surf-3); height:5px; border-radius:99px; overflow:hidden; margin:12px 0; }
+.ad-fill { height:100%; background:var(--gold); border-radius:99px; transition:width 1s linear; }
+
+/* ════════════════════════════════════════════════
+   ADMIN PANEL
+════════════════════════════════════════════════ */
+#s-admin {
+  background: var(--surf-1);
+  border: 1px solid var(--border-md);
+  border-radius: 16px;
+  padding: 24px 20px;
+  margin: 20px auto;
+  width: 100%; max-width: 480px;
+  z-index: 1; position: relative;
+  animation: rise .4s ease;
+  display: none;
+}
+#s-admin.open { display: block; }
+.admin-title { font-family:var(--font-d); font-size:22px; color:var(--gold); margin-bottom:16px; }
+.admin-result { margin-top:12px; padding:12px; background:var(--surf-2); border-radius:10px; font-size:13px; line-height:1.8; display:none; }
+
+/* ════════════════════════════════════════════════
+   LOADING SPINNER
+════════════════════════════════════════════════ */
+.loader {
+  width:36px; height:36px; border-radius:50%;
+  border:3px solid var(--surf-3);
+  border-top-color:var(--gold);
+  animation:spin .7s linear infinite;
+  margin:0 auto;
+}
+
+/* ════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════ */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--surf-1); color:var(--text);
+  border:1px solid var(--border-md);
+  font-size:13px; font-weight:500;
+  padding:10px 22px; border-radius:999px;
+  z-index:300; transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap; pointer-events:none;
+  box-shadow:0 8px 32px rgba(0,0,0,.3);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════ */
+.site-footer { font-size:11px; color:var(--text-3); text-align:center; line-height:1.9; margin-top:40px; padding-bottom:30px; }
+</style>
+</head>
+<body class="dark">
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: THEME PICKER
+══════════════════════════════════════════════ -->
+<section id="s-theme" class="screen active">
+  <div class="th-logo">Guide</div>
+  <div class="th-tag">home of scholars</div>
+  <div class="th-prompt">Choose your theme</div>
+  <div class="th-cards">
+    <div class="th-card tc-dark" onclick="pickTheme('dark')">
+      <div class="tc-prev">
+        <div class="tc-bar"></div>
+        <div class="tc-gold"></div>
+      </div>
+      <div class="tc-name">Dark</div>
+      <div class="tc-desc">Easy on the eyes</div>
+    </div>
+    <div class="th-card tc-light" onclick="pickTheme('light')">
+      <div class="tc-prev" style="background:#EDE9E0;">
+        <div class="tc-bar" style="background:#DDD4C0;"></div>
+        <div class="tc-gold"></div>
+      </div>
+      <div class="tc-name" style="color:#181818;">Light</div>
+      <div class="tc-desc" style="color:#ABA49A;">Clean & bright</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: SPLASH
+══════════════════════════════════════════════ -->
+<section id="s-splash" class="screen">
+  <div class="sp-inner">
+    <div class="sp-guide">Guide</div>
+    <div class="sp-by">by Fantasy</div>
+    <div class="sp-bar"></div>
+    <div class="sp-scholars">home of scholars</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: LOGIN
+══════════════════════════════════════════════ -->
+<section id="s-login" class="screen">
+
+  <div class="top-bar">
+    <div class="top-brand">Guide</div>
+    <div class="top-right">
+      <div class="theme-tog" id="tog-login" onclick="toggleTheme()">☀️</div>
+    </div>
+  </div>
+
+  <div style="padding:24px 0 18px;">
+    <div class="pg-eye">Welcome</div>
+    <div class="pg-title">Sign in to<br>your account</div>
+    <div class="pg-sub">Enter your details below. No account yet? One will be created for you.</div>
+  </div>
+
+  <div class="f-block">
+    <label>Email Address</label>
+    <input id="inp-email" type="email" placeholder="you@example.com"/>
+    <div class="f-error" id="err-email">Please enter a valid email address.</div>
+  </div>
+
+  <div class="f-block">
+    <label>Phone Number</label>
+    <input id="inp-phone" type="tel" placeholder="08012345678" maxlength="15"/>
+    <div class="f-hint">One account per phone number — this is your permanent account key.</div>
+    <div class="f-error" id="err-phone">Enter a valid phone number (min. 10 digits).</div>
+  </div>
+
+  <!-- Department — taps open "under development" modal -->
+  <div class="f-block">
+    <label>Department <span style="color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px;">(optional)</span></label>
+    <div class="fake-select" onclick="openModal('modal-dept')">
+      <span id="dept-display" style="color:var(--text-3);">Select department</span>
+      <span class="arr">▾</span>
+    </div>
+    <div class="f-hint">Department-specific courses coming soon.</div>
+  </div>
+
+  <div class="bot-bar">
+    <button class="btn btn-gold" onclick="handleLogin()">Continue →</button>
+  </div>
+
+  <p class="login-note" style="margin-bottom:80px;">
+    Your account ID is generated automatically and stored securely.<br>
+    Share your ID with Fantasy to activate Pro.
+  </p>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: FEATURES
+══════════════════════════════════════════════ -->
+<section id="s-features" class="screen">
+
+  <div class="top-bar">
+    <div class="top-brand">Guide</div>
+    <div class="top-right">
+      <div class="coin-chip" id="coins-features">🪙 <span id="coin-val-f">0</span></div>
+      <div class="theme-tog" id="tog-feat" onclick="toggleTheme()">☀️</div>
+    </div>
+  </div>
+
+  <div style="padding:20px 0 8px;">
+    <div class="pg-eye">Hello, <span id="greet-name">there</span></div>
+    <div class="pg-title">What would you<br>like to do?</div>
+  </div>
+
+  <div class="feat-cards">
+
+    <div class="feat-card locked" onclick="openModal('modal-study-soon')">
+      <div class="feat-badge">Coming Soon</div>
+      <div class="feat-ico">📖</div>
+      <div class="feat-body">
+        <div class="feat-name">Study GUIDE</div>
+        <div class="feat-desc">Structured notes, summaries and reading materials for your courses.</div>
+      </div>
+      <div class="feat-arr">→</div>
+    </div>
+
+    <div class="feat-card" onclick="go('s-courses')">
+      <div class="feat-ico">🎯</div>
+      <div class="feat-body">
+        <div class="feat-name">Pre Exam CBT</div>
+        <div class="feat-desc">Practice questions, exam simulation, and topic drills for your courses.</div>
+      </div>
+      <div class="feat-arr">→</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:auto; padding-top:30px;">
+    <div class="site-footer">
+      Logged in as <span id="footer-email">—</span><br>
+      ID: <span id="footer-id" style="color:var(--gold);font-weight:600;">—</span>
+      &nbsp;·&nbsp; <span style="cursor:pointer;text-decoration:underline;" onclick="handleLogout()">Log out</span>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: COURSE SELECT
+══════════════════════════════════════════════ -->
+<section id="s-courses" class="screen">
+
+  <div class="top-bar">
+    <div class="top-brand">Guide</div>
+    <div class="top-right">
+      <div class="coin-chip">🪙 <span id="coin-val-c">0</span></div>
+      <div class="theme-tog" id="tog-courses" onclick="toggleTheme()">☀️</div>
+    </div>
+  </div>
+
+  <div style="padding:14px 0 4px;">
+    <div class="breadcrumb" onclick="go('s-features')"><span class="bc-arr">←</span> Features</div>
+  </div>
+
+  <div style="padding:10px 0 6px;">
+    <div class="pg-eye">Step 1 of 2</div>
+    <div class="pg-title">Select Course</div>
+    <div class="pg-sub">Choose the course you want to practise for.</div>
+  </div>
+
+  <div class="info-banner">
+    <span>ⓘ</span>
+    <span>More courses are being added. If yours isn't listed, check back soon.</span>
+  </div>
+
+  <div class="search-wrap">
+    <span class="s-ico">🔍</span>
+    <input type="text" placeholder="Search for course..." oninput="filterCourses(this.value)"/>
+  </div>
+
+  <ul class="course-list" id="course-list">
+    <li class="c-item" onclick="pickCourse(this,'GST111','Communication in English')">
+      <div class="radio-ring"><div class="radio-dot"></div></div>
+      <div class="c-info"><div class="c-code">GST111</div><div class="c-name">Communication in English</div></div>
+      <span class="c-tag t-on">Available</span>
+    </li>
+    <li class="c-item" onclick="pickCourse(this,'MTH111','Elementary Mathematics I')">
+      <div class="radio-ring"><div class="radio-dot"></div></div>
+      <div class="c-info"><div class="c-code">MTH111</div><div class="c-name">Elementary Mathematics I</div></div>
+      <span class="c-tag t-on">Available</span>
+    </li>
+    <li class="c-item dim">
+      <div class="radio-ring"></div>
+      <div class="c-info"><div class="c-code">CHM111</div><div class="c-name">General Chemistry I</div></div>
+      <span class="c-tag t-soon">Soon</span>
+    </li>
+    <li class="c-item dim">
+      <div class="radio-ring"></div>
+      <div class="c-info"><div class="c-code">PHY111</div><div class="c-name">General Physics I</div></div>
+      <span class="c-tag t-soon">Soon</span>
+    </li>
+    <li class="c-item dim">
+      <div class="radio-ring"></div>
+      <div class="c-info"><div class="c-code">GST112</div><div class="c-name">Logic, Philosophy & Human Existence</div></div>
+      <span class="c-tag t-soon">Soon</span>
+    </li>
+    <li class="c-item dim">
+      <div class="radio-ring"></div>
+      <div class="c-info"><div class="c-code">MTH112</div><div class="c-name">Elementary Mathematics II</div></div>
+      <span class="c-tag t-soon">Soon</span>
+    </li>
+    <li class="c-item dim">
+      <div class="radio-ring"></div>
+      <div class="c-info"><div class="c-code">ENG111</div><div class="c-name">Use of English</div></div>
+      <span class="c-tag t-soon">Soon</span>
+    </li>
+  </ul>
+
+  <div class="bot-bar">
+    <button class="btn btn-gold" id="btn-course-go" disabled onclick="go('s-modes')">
+      Select a course to continue
+    </button>
+  </div>
+
+  <div style="height:80px;"></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: MODE SELECT
+══════════════════════════════════════════════ -->
+<section id="s-modes" class="screen">
+
+  <div class="top-bar">
+    <div class="top-brand">Guide</div>
+    <div class="top-right">
+      <div class="coin-chip">🪙 <span id="coin-val-m">0</span></div>
+      <div class="theme-tog" id="tog-modes" onclick="toggleTheme()">☀️</div>
+    </div>
+  </div>
+
+  <div style="padding:14px 0 4px;">
+    <div class="breadcrumb" onclick="go('s-courses')">
+      <span class="bc-arr">←</span>
+      <span id="course-crumb">GST111</span>
+    </div>
+  </div>
+
+  <div style="padding:10px 0 12px;">
+    <div class="pg-eye">Step 2 of 2</div>
+    <div class="pg-title">Choose a Mode</div>
+  </div>
+
+  <div class="trial-bar" id="trial-bar">
+    <div>
+      <div class="tb-lbl">Free Quizzes</div>
+      <div class="tb-val" id="trial-val">2 remaining</div>
+    </div>
+    <div class="tb-dots" id="trial-dots">
+      <div class="tdot"></div>
+      <div class="tdot"></div>
+    </div>
+  </div>
+
+  <div class="modes-list">
+    <div class="mode-row" onclick="handleMode('practice')">
+      <div class="m-emo">📝</div>
+      <div class="m-body">
+        <div class="m-name">Practice</div>
+        <div class="m-desc">Explanations after every answer. Best for learning.</div>
+      </div>
+      <div class="m-badge mb-free">Free</div>
+    </div>
+    <div class="mode-row locked" id="mode-exam" onclick="handleMode('exam')">
+      <div class="m-emo">⏱️</div>
+      <div class="m-body">
+        <div class="m-name">Exam Mode</div>
+        <div class="m-desc">Timed, no hints. Real exam simulation.</div>
+      </div>
+      <div class="m-badge mb-pro" id="badge-exam">Pro Only</div>
+    </div>
+    <div class="mode-row locked" id="mode-topic" onclick="handleMode('topic')">
+      <div class="m-emo">📚</div>
+      <div class="m-body">
+        <div class="m-name">By Topic</div>
+        <div class="m-desc">Focus on one topic. 2 ads or 20 coins.</div>
+      </div>
+      <div class="m-badge mb-coins">🪙 20</div>
+    </div>
+    <div class="mode-row locked" id="mode-random" onclick="handleMode('random')">
+      <div class="m-emo">🎲</div>
+      <div class="m-body">
+        <div class="m-name">Random</div>
+        <div class="m-desc">Shuffled questions from all topics. 5 ads or 50 coins.</div>
+      </div>
+      <div class="m-badge mb-coins">🪙 50</div>
+    </div>
+  </div>
+
+  <div class="up-strip">
+    <div>
+      <div class="us-title">⭐ Upgrade to Pro</div>
+      <div class="us-sub">All modes unlocked + 100 coins every day</div>
+    </div>
+    <button class="btn-wa" id="wa-btn">WhatsApp →</button>
+  </div>
+
+  <div style="height:20px;"></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: TOPIC SELECT
+══════════════════════════════════════════════ -->
+<section id="s-topic-select" class="screen">
+  <div class="top-bar">
+    <div class="top-brand">Guide</div>
+    <div class="top-right">
+      <div class="coin-chip">🪙 <span id="coin-val-t">0</span></div>
+      <div class="theme-tog" onclick="toggleTheme()">☀️</div>
+    </div>
+  </div>
+  <div style="padding:14px 0 4px;">
+    <div class="breadcrumb" onclick="go('s-modes')"><span class="bc-arr">←</span> Modes</div>
+  </div>
+  <div style="padding:10px 0 12px;">
+    <div class="pg-eye">By Topic</div>
+    <div class="pg-title">Select a Topic</div>
+  </div>
+  <div id="topics-grid" style="display:flex;flex-direction:column;gap:9px;"></div>
+  <div class="bot-bar">
+    <button class="btn btn-gold" id="btn-topic-go" disabled onclick="startTopicQuiz()">Select a topic</button>
+  </div>
+  <div style="height:80px;"></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: QUIZ
+══════════════════════════════════════════════ -->
+<section id="s-quiz" class="screen">
+  <div style="padding-top:18px;">
+    <div class="quiz-top">
+      <div class="q-counter" id="q-counter">Q 1 / 10</div>
+      <div class="timer-pill" id="timer">01:00</div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="q-topic-tag" id="q-tag">Grammar</div>
+    <p class="q-text" id="q-text">Loading…</p>
+    <ul class="opts-list" id="opts-list"></ul>
+    <div class="expl-box" id="expl-box"></div>
+    <div class="quiz-foot">
+      <button class="btn btn-gold btn-sm" id="btn-next" onclick="nextQ()" style="display:none;">Next →</button>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn btn-ghost btn-sm" onclick="openModal('modal-quit')">✕ Quit</button>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: RESULTS
+══════════════════════════════════════════════ -->
+<section id="s-results" class="screen">
+  <div style="padding-top:20px;">
+    <div class="ring-wrap">
+      <div class="ring">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="47" fill="none" stroke="var(--surf-3)" stroke-width="9"/>
+          <circle id="score-arc" cx="55" cy="55" r="47" fill="none"
+            stroke="var(--gold)" stroke-width="9" stroke-linecap="round"
+            stroke-dasharray="295.3" stroke-dashoffset="295.3"
+            style="transition:stroke-dashoffset 1s ease;"/>
+        </svg>
+        <div class="ring-label">
+          <span class="ring-score" id="res-score">0</span>
+          <span class="ring-total" id="res-total">/ 10</span>
+        </div>
+      </div>
+      <p class="res-msg" id="res-msg">Loading…</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="s-correct">0</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-val" id="s-wrong">0</div><div class="stat-lbl">Wrong</div></div>
+      <div class="stat-box"><div class="stat-val" id="s-time">00:00</div><div class="stat-lbl">Time</div></div>
+    </div>
+    <div class="rev-label">Review Answers</div>
+    <div id="rev-list"></div>
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn btn-gold" onclick="tryAgain()">Try Again</button>
+      <button class="btn btn-outline" onclick="go('s-modes')">Modes</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     ADMIN PANEL  (access via ?admin=fantasy in URL)
+══════════════════════════════════════════════ -->
+<div id="s-admin">
+  <div class="admin-title">🔐 Admin Panel</div>
+  <div class="f-block">
+    <label>User ID (e.g. CBT-4XK92F)</label>
+    <input id="admin-id-inp" type="text" placeholder="CBT-XXXXXX" style="text-transform:uppercase;"/>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gold btn-sm" onclick="adminLookup()">Look Up</button>
+    <button class="btn btn-ghost btn-sm" onclick="adminTogglePro()">Toggle Pro</button>
+    <button class="btn btn-ghost btn-sm" onclick="adminAddCoins()">+100 Coins</button>
+  </div>
+  <div class="admin-result" id="admin-result"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+
+<!-- Department under development -->
+<div class="overlay" id="modal-dept">
+  <div class="modal">
+    <div class="m-ico">🚧</div>
+    <div class="m-ttl">Under Development</div>
+    <div class="m-body">Department-specific features are still being built. This will allow you to see only courses relevant to your department. Check back soon!</div>
+    <button class="btn btn-gold" onclick="closeModal('modal-dept')">Got it</button>
+  </div>
+</div>
+
+<!-- Study GUIDE unavailable -->
+<div class="overlay" id="modal-study-soon">
+  <div class="modal">
+    <div class="m-ico">📖</div>
+    <div class="m-ttl">Coming Soon</div>
+    <div class="m-body">The Study GUIDE feature is currently under development. It will include structured notes, summaries, and reading materials for all your courses. Stay tuned!</div>
+    <button class="btn btn-gold" onclick="closeModal('modal-study-soon')">Okay</button>
+  </div>
+</div>
+
+<!-- Free trials exhausted -->
+<div class="overlay" id="modal-paywall">
+  <div class="modal">
+    <div class="m-ico">⚠️</div>
+    <div class="m-ttl">No Free Trials Left</div>
+    <div class="m-body">You've used your 2 free quizzes. Choose an option to keep going.</div>
+    <div class="m-opts">
+      <button class="m-opt" onclick="closeModal('modal-paywall');openModal('modal-upgrade')">
+        <span class="m-opt-ico">⭐</span>
+        <div><div class="m-opt-lbl">Upgrade to Pro</div><div class="m-opt-sub">Unlimited quizzes + 100 coins/day</div></div>
+      </button>
+      <button class="m-opt" onclick="watchAd('paywall')">
+        <span class="m-opt-ico">📺</span>
+        <div><div class="m-opt-lbl">Watch an Ad</div><div class="m-opt-sub">1 ad = 1 quiz session</div></div>
+      </button>
+      <button class="m-opt" onclick="spendCoins('paywall')">
+        <span class="m-opt-ico">🪙</span>
+        <div><div class="m-opt-lbl">Use 10 Coins</div><div class="m-opt-sub">You have <span id="pw-coins">0</span> coins</div></div>
+      </button>
+    </div>
+    <div class="m-cancel" onclick="closeModal('modal-paywall')">Cancel</div>
+  </div>
+</div>
+
+<!-- Pro only -->
+<div class="overlay" id="modal-pro-only">
+  <div class="modal">
+    <div class="m-ico">🔒</div>
+    <div class="m-ttl">Pro Only</div>
+    <div class="m-body">Exam Mode is exclusively for Pro members. Upgrade to unlock timed exam simulation, unlimited access, and 100 daily coins.</div>
+    <button class="btn btn-gold" onclick="closeModal('modal-pro-only');openModal('modal-upgrade')">Upgrade to Pro</button>
+    <div class="m-cancel" style="margin-top:12px;" onclick="closeModal('modal-pro-only')">Not now</div>
+  </div>
+</div>
+
+<!-- Topic / Random locked -->
+<div class="overlay" id="modal-mode-locked">
+  <div class="modal">
+    <div class="m-ico" id="ml-ico">📚</div>
+    <div class="m-ttl" id="ml-ttl">By Topic Mode</div>
+    <div class="m-body" id="ml-body">No free trials for this mode. Choose an option to unlock it.</div>
+    <div class="m-opts">
+      <button class="m-opt" onclick="closeModal('modal-mode-locked');openModal('modal-upgrade')">
+        <span class="m-opt-ico">⭐</span>
+        <div><div class="m-opt-lbl">Upgrade to Pro</div><div class="m-opt-sub">Unlimited access to all modes</div></div>
+      </button>
+      <button class="m-opt" id="ad-unlock-btn" onclick="watchAd('mode')">
+        <span class="m-opt-ico">📺</span>
+        <div><div class="m-opt-lbl" id="ad-lbl">Watch 2 Ads</div><div class="m-opt-sub" id="ad-prog-txt">0 of 2 watched</div></div>
+      </button>
+      <button class="m-opt" id="coin-unlock-btn" onclick="spendCoins('mode')">
+        <span class="m-opt-ico">🪙</span>
+        <div><div class="m-opt-lbl" id="coin-cost-lbl">Use 20 Coins</div><div class="m-opt-sub">You have <span id="ml-coins">0</span> coins</div></div>
+      </button>
+    </div>
+    <div class="m-cancel" onclick="closeModal('modal-mode-locked')">Cancel</div>
+  </div>
+</div>
+
+<!-- Upgrade -->
+<div class="overlay" id="modal-upgrade">
+  <div class="modal">
+    <div class="m-ico">⭐</div>
+    <div class="m-ttl">Upgrade to Pro</div>
+    <div class="m-body">
+      ✅ Unlimited Practice & Random quizzes<br>
+      ✅ Exam Mode (timed simulation)<br>
+      ✅ By Topic Mode (unlimited)<br>
+      ✅ 100 coins every day<br><br>
+      WhatsApp Fantasy with your ID to upgrade.
+    </div>
+    <button class="btn btn-gold" id="upgrade-wa-btn">Message Fantasy →</button>
+    <div class="m-cancel" style="margin-top:12px;" onclick="closeModal('modal-upgrade')">Maybe later</div>
+  </div>
+</div>
+
+<!-- Ad simulation -->
+<div class="overlay" id="modal-ad">
+  <div class="modal">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-3);margin-bottom:16px;">Advertisement</div>
+    <div class="ad-ring" id="ad-ring">10</div>
+    <!-- ╔══════════════════════════════════════╗
+         ║ REPLACE THIS WITH YOUR REAL AD UNIT ║
+         ╚══════════════════════════════════════╝ -->
+    <div style="background:var(--surf-2);border:1px dashed var(--border-md);border-radius:10px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:22px;margin-bottom:6px;">📱</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-2);">Your Ad Here</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Integrate AdSense or local network for production.</div>
+    </div>
+    <div class="ad-prog"><div class="ad-fill" id="ad-fill" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--text-3);">Please wait for the ad to finish…</div>
+  </div>
+</div>
+
+<!-- Daily reward -->
+<div class="overlay" id="modal-daily">
+  <div class="modal">
+    <div class="m-ico">🎁</div>
+    <div class="m-ttl">Daily Reward!</div>
+    <div class="m-body">As a Pro member, here are your coins for today.</div>
+    <div style="font-family:var(--font-d);font-size:52px;color:var(--gold);text-align:center;margin:10px 0;">+100 🪙</div>
+    <button class="btn btn-gold" onclick="closeModal('modal-daily')">Claim & Continue</button>
+  </div>
+</div>
+
+<!-- Quit confirm -->
+<div class="overlay" id="modal-quit">
+  <div class="modal">
+    <div class="m-ico">🚪</div>
+    <div class="m-ttl">Quit Quiz?</div>
+    <div class="m-body">Your progress in this session will be lost.</div>
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="quitQuiz()">Yes, Quit</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-quit')">Keep Going</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+/* ══════════════════════════════════════════════════════
+   QUESTION BANK
+   Add questions below in this format.
+   Topics for GST111: Grammar | Vocabulary | Comprehension | Writing Skills | Oral Communication | Punctuation
+   Topics for MTH111: Algebra | Sets | Calculus | Trigonometry | Statistics
+══════════════════════════════════════════════════════ */
+const QUESTIONS = {
+  GST111: [
+    { topic:'Grammar', q:'Which sentence is grammatically correct?', options:["He don't know the answer.","She doesn't knows it.","They doesn't know.","He doesn't know the answer."], a:3, e:'Third-person singular subjects use "doesn\'t" + base verb.' },
+    { topic:'Grammar', q:'Identify the correct passive voice:', options:["The students wrote the exam.","The exam was written by the students.","The exam written by students.","Students are write the exam."], a:1, e:'Passive voice: object + "to be" + past participle.' },
+    { topic:'Grammar', q:'Which has correct subject-verb agreement?', options:["The news are shocking.","Each of the boys have a book.","Neither the students nor the teacher is present.","The datas shows errors."], a:2, e:'With "neither…nor", the verb agrees with the nearest noun.' },
+    { topic:'Grammar', q:'Which sentence uses correct tense?', options:["She has gone yesterday.","He will went tomorrow.","They had finished before we arrived.","I am seeing him last night."], a:2, e:'Past perfect shows an action completed before another past event.' },
+    { topic:'Vocabulary', q:'What does "verbose" mean?', options:["Using very few words","Using more words than necessary","Speaking quickly","Speaking quietly"], a:1, e:'"Verbose" means excessively wordy — the opposite of concise.' },
+    { topic:'Vocabulary', q:'"Euphemism" refers to:', options:["A harsh expression","A mild substitute for an offensive term","Strong emotion","A comparison figure"], a:1, e:'A euphemism softens offensive language. E.g., "passed away" for "died".' },
+    { topic:'Vocabulary', q:'What does "ambiguous" mean?', options:["Very clear","Open to more than one interpretation","Aggressively competitive","Generous"], a:1, e:'"Ambiguous" means capable of being understood in more than one way.' },
+    { topic:'Vocabulary', q:'A "synonym" is a word that:', options:["Means the opposite","Has a similar meaning","Sounds the same","Combines two words"], a:1, e:'Synonyms share the same or similar meaning. E.g., "happy" and "joyful".' },
+    { topic:'Comprehension', q:'A "topic sentence" in a paragraph:', options:["Is the last sentence","Introduces the essay","States the main idea of the paragraph","Provides supporting details"], a:2, e:'A topic sentence states the central idea of its paragraph.' },
+    { topic:'Comprehension', q:'What is an "inference"?', options:["A direct quote","A conclusion drawn from textual evidence","The title","A summary"], a:1, e:'An inference is a logical conclusion implied but not directly stated.' },
+    { topic:'Writing Skills', q:'Which is NOT a feature of formal writing?', options:["Technical vocabulary","Use of contractions (don\'t, can\'t)","Objective tone","Avoidance of slang"], a:1, e:'Formal writing avoids contractions — use "do not" not "don\'t".' },
+    { topic:'Writing Skills', q:'A thesis statement:', options:["Is the title","Is the conclusion","States the writer\'s main argument","Lists all points"], a:2, e:'A thesis presents the central claim, typically at the end of the introduction.' },
+    { topic:'Oral Communication', q:'The most important element for effective listening is:', options:["Interrupting frequently","Maintaining focus on the speaker","Thinking of your reply","Speaking louder"], a:1, e:'Active listening requires full attention before forming any response.' },
+    { topic:'Oral Communication', q:'"Kinesics" is the study of:', options:["Vocal tone","Body language and movement","Written language","Listening skills"], a:1, e:'Kinesics covers body movements, gestures, and facial expressions.' },
+    { topic:'Punctuation', q:'Which punctuation introduces a list?', options:["Semicolon (;)","Comma (,)","Colon (:)","Hyphen (-)"], a:2, e:'A colon (:) introduces a list, quotation, or explanation.' },
+    { topic:'Punctuation', q:'An apostrophe is used to show:', options:["A question","Ownership or a missing letter","A list","Emphasis"], a:1, e:'Apostrophes mark possession (John\'s) or contractions (don\'t = do not).' },
+    { topic:'Punctuation', q:'Which uses semicolons correctly?', options:["She loves reading; books.","He studied hard; he still failed.","They went to; the market.","I like tea; coffee; juice."], a:1, e:'A semicolon joins two closely related independent clauses.' },
+    { topic:'Writing Skills', q:'Inductive paragraph order means:', options:["Main idea first","Main idea last","Chronological order","Spatial order"], a:1, e:'Inductive order builds from specific details to a general conclusion.' },
+    { topic:'Oral Communication', q:'"Proxemics" is the study of:', options:["Volume of speech","Personal space in communication","Word choice","Tone and pitch"], a:1, e:'Proxemics examines how physical distance affects communication.' },
+    { topic:'Grammar', q:'Choose the correctly punctuated sentence:', options:["Its a beautiful day.","Its' a beautiful day.","It\'s a beautiful day.","It\'s a beautiful day?"], a:2, e:'"It\'s" is the contraction of "it is". "Its" shows possession without an apostrophe.' }
+  ],
+
+  MTH111: [
+    { topic:'Algebra', q:'Simplify: 3(2x + 4) − 2(x − 1)', options:["4x + 14","4x + 10","8x + 14","4x + 12"], a:0, e:'3(2x+4)−2(x−1) = 6x+12−2x+2 = 4x+14.' },
+    { topic:'Algebra', q:'Solve for x: 2x + 5 = 13', options:["x = 3","x = 4","x = 9","x = 8"], a:1, e:'2x = 13−5 = 8, so x = 4.' },
+    { topic:'Algebra', q:'Factorise: x² − 9', options:["(x−3)(x−3)","(x+3)(x+3)","(x+3)(x−3)","(x−9)(x+1)"], a:2, e:'Difference of two squares: x²−9 = (x+3)(x−3).' },
+    { topic:'Algebra', q:'Solve: x² − 5x + 6 = 0', options:["x = 2 or x = 3","x = −2 or x = −3","x = 1 or x = 6","x = 2 or x = −3"], a:0, e:'Factor: (x−2)(x−3) = 0, so x = 2 or x = 3.' },
+    { topic:'Algebra', q:'If f(x) = 2x² − 3x + 1, find f(2):', options:["3","5","7","9"], a:0, e:'f(2) = 2(4)−3(2)+1 = 8−6+1 = 3.' },
+    { topic:'Sets', q:'If A = {1,2,3,4} and B = {3,4,5,6}, what is A ∩ B?', options:["{1,2,3,4,5,6}","{3,4}","{1,2,5,6}","{}"], a:1, e:'Intersection contains elements in both sets: {3,4}.' },
+    { topic:'Sets', q:'The union A ∪ B of the same sets is:', options:["{3,4}","{1,2}","{1,2,3,4,5,6}","{5,6}"], a:2, e:'Union contains all elements from both sets: {1,2,3,4,5,6}.' },
+    { topic:'Sets', q:'A set with no elements is called:', options:["Universal set","Power set","Null set","Subset"], a:2, e:'A null (or empty) set {} contains no elements.' },
+    { topic:'Sets', q:'If n(A) = 10, n(B) = 8, n(A∩B) = 3, find n(A∪B):', options:["21","18","15","16"], a:2, e:'n(A∪B) = n(A)+n(B)−n(A∩B) = 10+8−3 = 15.' },
+    { topic:'Calculus', q:'Find dy/dx if y = 3x⁴:', options:["12x³","4x³","12x⁴","3x³"], a:0, e:'Power rule: d/dx(3x⁴) = 3×4x³ = 12x³.' },
+    { topic:'Calculus', q:'Differentiate y = 5x² − 2x + 7:', options:["10x − 2","5x − 2","10x + 7","5x² − 2"], a:0, e:'dy/dx = 10x − 2. The constant 7 disappears.' },
+    { topic:'Calculus', q:'∫ 2x dx = ?', options:["x² + C","2x² + C","x + C","4x + C"], a:0, e:'∫2x dx = 2×(x²/2) + C = x² + C.' },
+    { topic:'Calculus', q:'The derivative of a constant is:', options:["1","The constant itself","0","Undefined"], a:2, e:'d/dx(c) = 0 for any constant c.' },
+    { topic:'Trigonometry', q:'sin(90°) = ?', options:["0","1","½","√2/2"], a:1, e:'sin(90°) = 1. This is a standard trigonometric value.' },
+    { topic:'Trigonometry', q:'cos(0°) = ?', options:["0","1","-1","½"], a:1, e:'cos(0°) = 1. The cosine of zero degrees is 1.' },
+    { topic:'Trigonometry', q:'tan(45°) = ?', options:["0","√3","1","1/√3"], a:2, e:'tan(45°) = sin(45°)/cos(45°) = 1.' },
+    { topic:'Trigonometry', q:'Which identity is correct?', options:["sin²θ + cos²θ = 0","sin²θ − cos²θ = 1","sin²θ + cos²θ = 1","sin²θ × cos²θ = 1"], a:2, e:'The Pythagorean identity: sin²θ + cos²θ = 1.' },
+    { topic:'Statistics', q:'The mean of 4, 7, 10, 13, 16 is:', options:["10","11","9","12"], a:0, e:'Mean = (4+7+10+13+16)/5 = 50/5 = 10.' },
+    { topic:'Statistics', q:'The median of 3, 5, 7, 9, 11 is:', options:["5","7","9","6"], a:1, e:'Median is the middle value of an ordered set. Here it is 7.' },
+    { topic:'Statistics', q:'The mode of 2, 3, 3, 5, 7, 7, 7, 9 is:', options:["3","5","7","2"], a:2, e:'Mode is the most frequently occurring value. 7 appears three times.' }
+  ]
+};
+
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+let theme       = 'dark';
+let currentUser = null;
+let selCourse   = null;
+let pendingMode = null;
+let QS          = {};  // quiz state
+let adCtx       = null;
+let adTimer     = null;
+let adminLookupUser = null;
+
+/* ══════════════════════════════════════════════════════
+   DB HELPERS (Firebase)
+══════════════════════════════════════════════════════ */
+
+async function dbGet(phone) {
+  if (!window._fbReady) return null;
+  try {
+    const snap = await window._getDoc(window._doc(window._db, 'users', phone));
+    return snap.exists() ? snap.data() : null;
+  } catch(e) { console.error('dbGet', e); return null; }
+}
+
+async function dbSet(phone, data) {
+  if (!window._fbReady) return;
+  try {
+    await window._setDoc(window._doc(window._db, 'users', phone), data);
+  } catch(e) { console.error('dbSet', e); }
+}
+
+async function dbUpdate(phone, patch) {
+  if (!window._fbReady) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', phone), patch);
+  } catch(e) { console.error('dbUpdate', e); }
+}
+
+function genID() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = 'CBT-';
+  for (let i=0;i<6;i++) s += c[Math.floor(Math.random()*c.length)];
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════════════ */
+async function handleLogin() {
+  const email = document.getElementById('inp-email').value.trim();
+  const phone = document.getElementById('inp-phone').value.replace(/\D/g,'');
+  let ok = true;
+
+  const validEmail = email.includes('@') && email.includes('.');
+  document.getElementById('err-email').style.display = validEmail ? 'none' : 'block';
+  document.getElementById('inp-email').style.borderColor = validEmail ? '' : 'var(--wrong)';
+  if (!validEmail) ok = false;
+
+  const validPhone = phone.length >= 10;
+  document.getElementById('err-phone').style.display = validPhone ? 'none' : 'block';
+  document.getElementById('inp-phone').style.borderColor = validPhone ? '' : 'var(--wrong)';
+  if (!validPhone) ok = false;
+
+  if (!ok) return;
+
+  // show loading
+  const btn = document.querySelector('#s-login .btn-gold');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+
+  if (!window._fbReady) {
+    toast('⚠️ Firebase not configured — running in demo mode');
+    currentUser = { id:genID(), email, phone, isPro:false, coins:50, freeTrialsUsed:0, topicAdsWatched:0, randomAdsWatched:0, lastDailyReward:null, createdAt:new Date().toISOString() };
+    afterLogin(true);
+    btn.textContent = 'Continue →'; btn.disabled = false;
+    return;
+  }
+
+  let user = await dbGet(phone);
+  let isNew = false;
+
+  if (!user) {
+    user = { id:genID(), email, phone, isPro:false, coins:50, freeTrialsUsed:0, topicAdsWatched:0, randomAdsWatched:0, lastDailyReward:null, createdAt:new Date().toISOString() };
+    await dbSet(phone, user);
+    isNew = true;
+  } else {
+    user.email = email;
+    await dbUpdate(phone, { email });
+  }
+
+  currentUser = user;
+  localStorage.setItem('guide_session', phone);
+  btn.textContent = 'Continue →'; btn.disabled = false;
+
+  toast(isNew ? '👋 Welcome! You received 50 starter coins 🪙' : 'Welcome back, ' + email.split('@')[0] + '!');
+  afterLogin(isNew);
+}
+
+function afterLogin(isNew) {
+  refreshUI();
+  go('s-features');
+  if (currentUser.isPro) setTimeout(checkDailyReward, 600);
+}
+
+function handleLogout() {
+  currentUser = null;
+  localStorage.removeItem('guide_session');
+  go('s-theme');
+}
+
+async function autoLogin() {
+  const saved = localStorage.getItem('guide_session');
+  if (!saved || !window._fbReady) return false;
+  const user = await dbGet(saved);
+  if (!user) return false;
+  currentUser = user;
+  refreshUI();
+  if (currentUser.isPro) setTimeout(checkDailyReward, 600);
+  go('s-features');
+  return true;
+}
+
+/* ══════════════════════════════════════════════════════
+   REFRESH UI
+══════════════════════════════════════════════════════ */
+function refreshUI() {
+  if (!currentUser) return;
+  const u = currentUser;
+
+  // coin displays
+  document.querySelectorAll('[id^="coin-val"]').forEach(el => el.textContent = u.coins);
+
+  // feature screen
+  const name = u.email.split('@')[0];
+  document.getElementById('greet-name').textContent = name;
+  document.getElementById('footer-email').textContent = u.email;
+  document.getElementById('footer-id').textContent = u.id;
+
+  // modes screen
+  const rem = Math.max(0, 2 - u.freeTrialsUsed);
+  document.getElementById('trial-val').textContent = u.isPro ? 'Unlimited (Pro)' : `${rem} remaining`;
+  document.getElementById('trial-bar').style.display = u.isPro ? 'none' : '';
+  const dots = document.getElementById('trial-dots');
+  dots.innerHTML = [0,1].map(i => `<div class="tdot${i<u.freeTrialsUsed?' on':''}"></div>`).join('');
+
+  // unlock pro mode rows
+  if (u.isPro) {
+    ['mode-exam','mode-topic','mode-random'].forEach(id => {
+      document.getElementById(id).classList.remove('locked');
+    });
+    document.getElementById('badge-exam').textContent = '✓ PRO';
+    document.getElementById('badge-exam').className = 'm-badge mb-free';
+  }
+
+  // WhatsApp buttons
+  const waMsg = encodeURIComponent(`Hi Fantasy! I want to upgrade my Guide CBT account to Pro.\nMy ID is: ${u.id}`);
+  const waURL = `https://wa.me/2347074218603?text=${waMsg}`;
+  document.getElementById('wa-btn').onclick = () => window.open(waURL,'_blank');
+  document.getElementById('upgrade-wa-btn').onclick = () => { window.open(waURL,'_blank'); closeModal('modal-upgrade'); };
+}
+
+/* ══════════════════════════════════════════════════════
+   DAILY REWARD
+══════════════════════════════════════════════════════ */
+async function checkDailyReward() {
+  if (!currentUser?.isPro) return;
+  const today = new Date().toDateString();
+  if (currentUser.lastDailyReward === today) return;
+  currentUser.coins += 100;
+  currentUser.lastDailyReward = today;
+  await dbUpdate(currentUser.phone, { coins: currentUser.coins, lastDailyReward: today });
+  refreshUI();
+  openModal('modal-daily');
+}
+
+/* ══════════════════════════════════════════════════════
+   COINS
+══════════════════════════════════════════════════════ */
+async function addCoins(n) {
+  currentUser.coins += n;
+  await dbUpdate(currentUser.phone, { coins: currentUser.coins });
+  refreshUI();
+}
+
+async function deductCoins(n) {
+  currentUser.coins -= n;
+  await dbUpdate(currentUser.phone, { coins: currentUser.coins });
+  refreshUI();
+}
+
+/* ══════════════════════════════════════════════════════
+   ACCESS CONTROL
+══════════════════════════════════════════════════════ */
+function handleMode(mode) {
+  pendingMode = mode;
+  const u = currentUser;
+
+  if (u.isPro) {
+    if (mode === 'topic') openTopicSelect();
+    else startQuiz(mode);
+    return;
+  }
+
+  if (mode === 'practice') {
+    if (u.freeTrialsUsed < 2) startQuiz(mode);
+    else { document.getElementById('pw-coins').textContent = u.coins; openModal('modal-paywall'); }
+    return;
+  }
+
+  if (mode === 'exam') { openModal('modal-pro-only'); return; }
+
+  if (mode === 'topic') {
+    document.getElementById('ml-ico').textContent  = '📚';
+    document.getElementById('ml-ttl').textContent  = 'By Topic Mode';
+    document.getElementById('ml-body').textContent = 'No free trials for this mode. Choose an option to unlock it.';
+    document.getElementById('ad-lbl').textContent  = 'Watch 2 Ads';
+    document.getElementById('ad-prog-txt').textContent = `${u.topicAdsWatched||0} of 2 watched`;
+    document.getElementById('coin-cost-lbl').textContent = 'Use 20 Coins';
+    document.getElementById('ml-coins').textContent = u.coins;
+    openModal('modal-mode-locked');
+    return;
+  }
+
+  if (mode === 'random') {
+    document.getElementById('ml-ico').textContent  = '🎲';
+    document.getElementById('ml-ttl').textContent  = 'Random Mode';
+    document.getElementById('ml-body').textContent = 'No free trials for Random mode. Choose an option.';
+    document.getElementById('ad-lbl').textContent  = 'Watch 5 Ads';
+    document.getElementById('ad-prog-txt').textContent = `${u.randomAdsWatched||0} of 5 watched`;
+    document.getElementById('coin-cost-lbl').textContent = 'Use 50 Coins';
+    document.getElementById('ml-coins').textContent = u.coins;
+    openModal('modal-mode-locked');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   ADS
+══════════════════════════════════════════════════════ */
+function watchAd(ctx) {
+  adCtx = ctx;
+  closeModal('modal-paywall');
+  closeModal('modal-mode-locked');
+  openModal('modal-ad');
+
+  let t = 10;
+  document.getElementById('ad-ring').textContent = t;
+  document.getElementById('ad-fill').style.width = '0%';
+
+  adTimer = setInterval(() => {
+    t--;
+    document.getElementById('ad-ring').textContent = t;
+    document.getElementById('ad-fill').style.width = `${((10-t)/10)*100}%`;
+    if (t <= 0) { clearInterval(adTimer); closeModal('modal-ad'); onAdDone(); }
+  }, 1000);
+}
+
+async function onAdDone() {
+  if (adCtx === 'paywall') {
+    toast('Ad complete! Quiz unlocked 🎉');
+    startQuiz(pendingMode, true);
+    return;
+  }
+
+  const mode = pendingMode;
+  const adReq = mode === 'topic' ? 2 : 5;
+  const field  = mode === 'topic' ? 'topicAdsWatched' : 'randomAdsWatched';
+  const watched = (currentUser[field]||0) + 1;
+  currentUser[field] = watched;
+  await dbUpdate(currentUser.phone, { [field]: watched });
+
+  if (watched >= adReq) {
+    currentUser[field] = 0;
+    await dbUpdate(currentUser.phone, { [field]: 0 });
+    toast(`All ads watched! ${mode === 'topic' ? 'Topic' : 'Random'} mode unlocked 🎉`);
+    if (mode === 'topic') openTopicSelect(); else startQuiz('random', true);
+  } else {
+    toast(`${watched} of ${adReq} ads watched. Keep going!`);
+    handleMode(mode); // reopen modal with updated count
+  }
+}
+
+async function spendCoins(ctx) {
+  const cost = ctx === 'paywall' ? 10 : (pendingMode === 'topic' ? 20 : 50);
+  if (currentUser.coins < cost) { toast(`Not enough coins! You need ${cost} 🪙`); return; }
+  await deductCoins(cost);
+  closeModal('modal-paywall');
+  closeModal('modal-mode-locked');
+  toast(`${cost} coins spent — unlocked! 🎉`);
+  if (ctx === 'paywall') startQuiz(pendingMode, true);
+  else if (pendingMode === 'topic') openTopicSelect();
+  else startQuiz('random', true);
+}
+
+/* ══════════════════════════════════════════════════════
+   TOPIC SELECT
+══════════════════════════════════════════════════════ */
+let selTopic = null;
+
+function openTopicSelect() {
+  selTopic = null;
+  const qs = QUESTIONS[selCourse.code] || [];
+  const topics = [...new Set(qs.map(q => q.topic))];
+  document.getElementById('topics-grid').innerHTML = topics.map(t => {
+    const n = qs.filter(q => q.topic === t).length;
+    return `<div onclick="pickTopic('${t}',this)" style="
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--surf-1);border:2px solid var(--border);border-radius:14px;
+      padding:15px 16px;cursor:pointer;transition:border-color .13s,background .13s;">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);">${t}</div>
+        <div style="font-size:12px;color:var(--text-2);margin-top:3px;">${n} question${n!==1?'s':''}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-3);">→</div>
+    </div>`;
+  }).join('');
+  go('s-topic-select');
+}
+
+function pickTopic(t, el) {
+  selTopic = t;
+  document.querySelectorAll('#topics-grid > div').forEach(d => {
+    d.style.borderColor = 'var(--border)'; d.style.background = 'var(--surf-1)';
+  });
+  el.style.borderColor = 'var(--gold)';
+  el.style.background  = 'var(--gold-dim)';
+  const btn = document.getElementById('btn-topic-go');
+  btn.disabled = false; btn.textContent = `Start "${t}" Quiz →`;
+}
+
+function startTopicQuiz() {
+  if (selTopic) startQuiz('topic', false, selTopic);
+}
+
+/* ══════════════════════════════════════════════════════
+   QUIZ ENGINE
+══════════════════════════════════════════════════════ */
+async function startQuiz(mode, bypass=false, topic=null) {
+  // increment free trial counter
+  if (mode === 'practice' && !currentUser.isPro && !bypass) {
+    currentUser.freeTrialsUsed = (currentUser.freeTrialsUsed||0) + 1;
+    await dbUpdate(currentUser.phone, { freeTrialsUsed: currentUser.freeTrialsUsed });
+    refreshUI();
+  }
+
+  let qs = [...(QUESTIONS[selCourse.code]||[])];
+  if (mode === 'topic' && topic) qs = qs.filter(q => q.topic === topic);
+  if (mode === 'random') qs.sort(() => Math.random()-.5);
+
+  QS = { mode, topic, questions:qs, idx:0, correct:0, wrong:0, answers:[], startTime:Date.now(), timerID:null, timeLeft:60 };
+  go('s-quiz');
+  renderQ();
+}
+
+function renderQ() {
+  const q = QS.questions[QS.idx];
+  const total = QS.questions.length;
+  const L = ['A','B','C','D'];
+
+  document.getElementById('q-counter').textContent = `Q ${QS.idx+1} / ${total}`;
+  document.getElementById('prog-fill').style.width  = `${(QS.idx/total)*100}%`;
+  document.getElementById('q-tag').textContent       = q.topic;
+  document.getElementById('q-text').textContent      = q.q;
+
+  document.getElementById('opts-list').innerHTML = q.options.map((o,i) =>
+    `<li><button class="opt-btn" onclick="pick(${i})">
+      <span class="opt-letter">${L[i]}</span>${o}
+    </button></li>`
+  ).join('');
+
+  document.getElementById('expl-box').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const timerEl = document.getElementById('timer');
+  if (QS.mode === 'exam') {
+    timerEl.style.display = '';
+    timerEl.classList.remove('warn');
+    startTimer();
+  } else {
+    timerEl.style.display = 'none';
+  }
+}
+
+function startTimer() {
+  clearInterval(QS.timerID);
+  QS.timeLeft = 60;
+  updateTimerEl();
+  QS.timerID = setInterval(() => {
+    QS.timeLeft--;
+    updateTimerEl();
+    if (QS.timeLeft <= 10) document.getElementById('timer').classList.add('warn');
+    if (QS.timeLeft <= 0) { clearInterval(QS.timerID); pick(-1); }
+  }, 1000);
+}
+
+function updateTimerEl() {
+  const t = QS.timeLeft;
+  document.getElementById('timer').textContent =
+    `${Math.floor(t/60).toString().padStart(2,'0')}:${(t%60).toString().padStart(2,'0')}`;
+}
+
+function pick(sel) {
+  clearInterval(QS.timerID);
+  const q = QS.questions[QS.idx];
+  const ok = sel === q.a;
+  ok ? QS.correct++ : QS.wrong++;
+  QS.answers.push({ idx:QS.idx, sel, ok });
+
+  document.querySelectorAll('.opt-btn').forEach((b,i) => {
+    b.disabled = true;
+    if (i === q.a) b.classList.add('correct');
+    else if (i === sel && !ok) b.classList.add('wrong');
+  });
+
+  if (QS.mode !== 'exam') {
+    const eb = document.getElementById('expl-box');
+    eb.innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+    eb.style.display = 'block';
+  }
+  document.getElementById('btn-next').style.display = 'inline-flex';
+}
+
+function nextQ() {
+  QS.idx++;
+  if (QS.idx >= QS.questions.length) showResults();
+  else renderQ();
+}
+
+async function showResults() {
+  const { correct, wrong, questions, startTime, answers } = QS;
+  const total   = questions.length;
+  const elapsed = Math.floor((Date.now()-startTime)/1000);
+  const mm = Math.floor(elapsed/60).toString().padStart(2,'0');
+  const ss = (elapsed%60).toString().padStart(2,'0');
+  const pct = correct/total;
+
+  document.getElementById('res-score').textContent   = correct;
+  document.getElementById('res-total').textContent   = `/ ${total}`;
+  document.getElementById('s-correct').textContent   = correct;
+  document.getElementById('s-wrong').textContent     = wrong;
+  document.getElementById('s-time').textContent      = `${mm}:${ss}`;
+  document.getElementById('score-arc').style.strokeDashoffset = 295.3*(1-pct);
+
+  const msgs = ['Don\'t give up! Review and try again 🔄','Keep going! You\'re getting there 💪','Good effort! Keep studying 📚','Excellent work! 🎉'];
+  document.getElementById('res-msg').textContent = pct>=.8?msgs[3]:pct>=.6?msgs[2]:pct>=.4?msgs[1]:msgs[0];
+
+  // coin reward
+  if (pct >= .7) {
+    const reward = Math.round(pct*10);
+    await addCoins(reward);
+    toast(`Scored ${Math.round(pct*100)}%! +${reward} coins 🪙`);
+  }
+
+  await dbUpdate(currentUser.phone, { quizzesDone: (currentUser.quizzesDone||0)+1 });
+
+  document.getElementById('rev-list').innerHTML = questions.map((q,i) => {
+    const a = answers.find(x=>x.idx===i);
+    const ok = a?.ok || false;
+    const preview = q.q.length>65 ? q.q.slice(0,65)+'…' : q.q;
+    return `<div class="rev-item"><div class="rev-head">
+      <div class="rev-dot ${ok?'ok':'bad'}"></div>
+      Q${i+1} — ${preview}
+    </div></div>`;
+  }).join('');
+
+  go('s-results');
+}
+
+function tryAgain() { handleMode(QS.mode); }
+function quitQuiz() { clearInterval(QS.timerID); closeModal('modal-quit'); go('s-modes'); }
+
+/* ══════════════════════════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════════════════════════ */
+async function adminLookup() {
+  const id = document.getElementById('admin-id-inp').value.trim().toUpperCase();
+  if (!id || !window._fbReady) return;
+
+  // Firestore doesn't support query by field without index easily;
+  // For simplicity we use a known phone or show instructions.
+  // In production: add a secondary 'ids' collection mapping id→phone.
+  const res = document.getElementById('admin-result');
+  res.style.display = 'block';
+  res.innerHTML = '<div class="loader"></div>';
+
+  // ── Search by scanning (works for small user bases) ──
+  // For scale: create a separate Firestore collection `ids/{id} = {phone}`
+  toast('Looking up user… (see console)');
+  res.innerHTML = `<strong>ID Lookup:</strong> ${id}<br>To look up users by ID, query the Firestore console or add an IDs index collection. The user's document key is their phone number.`;
+}
+
+async function adminTogglePro() {
+  const id = document.getElementById('admin-id-inp').value.trim().toUpperCase();
+  const res = document.getElementById('admin-result');
+  res.style.display = 'block';
+  res.innerHTML = `To toggle Pro for ID <strong>${id}</strong>:<br>1. Find their phone number in Firestore<br>2. Update <code>isPro</code> to <code>true</code><br>Or integrate a lookup index for one-click activation.`;
+}
+
+async function adminAddCoins() {
+  document.getElementById('admin-result').style.display = 'block';
+  document.getElementById('admin-result').innerHTML = 'Enter the user\'s phone number as the ID field to add coins directly to their Firestore document.';
+}
+
+/* ══════════════════════════════════════════════════════
+   THEME & NAVIGATION
+══════════════════════════════════════════════════════ */
+function pickTheme(t) {
+  theme = t;
+  document.body.className = t;
+  updateToggles();
+  runSplash();
+}
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  document.body.className = theme;
+  updateToggles();
+}
+
+function updateToggles() {
+  document.querySelectorAll('.theme-tog').forEach(el => el.textContent = theme==='dark'?'☀️':'🌙');
+}
+
+function runSplash() {
+  go('s-splash');
+  const si = document.querySelector('.sp-inner');
+  si.classList.remove('sp-go');
+  void si.offsetWidth;
+  si.classList.add('sp-go');
+  setTimeout(async () => {
+    const didAutoLogin = await autoLogin();
+    if (!didAutoLogin) go('s-login');
+  }, 2800);
+}
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function pickCourse(el, code, name) {
+  document.querySelectorAll('.c-item').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  selCourse = { code, name };
+  const btn = document.getElementById('btn-course-go');
+  btn.disabled = false;
+  btn.textContent = `Continue with ${code} →`;
+  document.getElementById('course-crumb').textContent = `${code} · ${name}`;
+  refreshUI();
+}
+
+function filterCourses(v) {
+  const q = v.toLowerCase();
+  document.querySelectorAll('.c-item').forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3400);
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+updateToggles();
+
+// Check for admin panel access
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('admin') === 'fantasy2025') {
+  document.getElementById('s-admin').classList.add('open');
+}
+
+// Wait for Firebase then try auto-login
+document.addEventListener('fb-ready', () => {
+  const saved = localStorage.getItem('guide_session');
+  if (!saved) return; // stay on theme picker
+});
+
+// If Firebase never loads (e.g. config not set), allow demo mode
+setTimeout(() => {
+  if (!window._fbReady) {
+    console.warn('Firebase not configured — demo mode active');
+  }
+}, 3000);
+</script>
+
+</body>
+</html>
