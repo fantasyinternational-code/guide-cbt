@@ -479,7 +479,38 @@ body.dark::after {
 .bn-lbl{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);}
 .bn-item.active .bn-lbl{color:var(--gold);}
 
-/* ════ MISC ════ */
+/* ════ AD CREATIVES ════ */
+.ad-creative{border-radius:12px;padding:16px;text-align:left;position:relative;overflow:hidden;}
+.ad-creative.dark{background:linear-gradient(135deg,#0C0C0F,#131317);border:1px solid rgba(201,146,42,.3);}
+.ad-creative.gold{background:linear-gradient(135deg,#C9922A,#E4A535,#C9922A);border:none;}
+.ad-creative.light-ad{background:#F4F0E6;border:1px solid #DDD4C0;}
+.ad-c-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.ad-c-label.dk{color:#C9922A;}
+.ad-c-label.gd{color:rgba(255,255,255,.75);}
+.ad-c-label.lt{color:#ABA49A;}
+.ad-c-title{font-family:var(--font-d);font-weight:700;line-height:1.15;margin-bottom:10px;}
+.ad-c-title.dk{font-size:22px;color:#EDE9E0;}
+.ad-c-title.dk span{color:#C9922A;}
+.ad-c-title.gd{font-size:22px;color:#fff;}
+.ad-c-title.lt{font-size:20px;color:#181818;}
+.ad-perks{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.ad-perk{display:flex;align-items:center;gap:7px;font-size:12px;}
+.ad-perk.dk{color:#9B9690;}
+.ad-perk.gd{color:rgba(255,255,255,.85);}
+.ad-perk-dot{width:16px;height:16px;border-radius:50%;background:rgba(201,146,42,.2);border:1px solid rgba(201,146,42,.4);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;color:#C9922A;}
+.ad-perk-dot.gd{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);color:#fff;}
+.ad-coins-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border-radius:8px;padding:8px 10px;margin-bottom:12px;}
+.ad-coins-val{font-family:var(--font-d);font-size:18px;font-weight:700;color:#fff;}
+.ad-coins-lbl{font-size:10px;color:rgba(255,255,255,.75);}
+.ad-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.ad-grid-item{background:rgba(201,146,42,.1);border-radius:8px;padding:8px 10px;}
+.ad-grid-ico{font-size:16px;margin-bottom:3px;}
+.ad-grid-txt{font-size:11px;font-weight:600;color:#181818;}
+.ad-cta{width:100%;padding:11px;border:none;border-radius:8px;font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;}
+.ad-cta.dk{background:#C9922A;color:#fff;}
+.ad-cta.gd{background:#0C0C0F;color:#C9922A;}
+.ad-cta.lt{background:#C9922A;color:#fff;}
+
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
 .empty-ico{font-size:48px;margin-bottom:14px;}
 .empty-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
@@ -1287,12 +1318,8 @@ body.dark::after {
   <div class="modal">
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-3);margin-bottom:16px;">Advertisement</div>
     <div class="ad-ring" id="ad-ring">10</div>
-    <!-- REPLACE THIS BLOCK WITH YOUR REAL AD UNIT -->
-    <div style="background:var(--surf-2);border:1px dashed var(--border-md);border-radius:10px;padding:16px;margin-bottom:12px;">
-      <div style="font-size:22px;margin-bottom:6px;">📱</div>
-      <div style="font-size:13px;font-weight:600;color:var(--text-2);">Your Ad Here</div>
-      <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Integrate AdSense or sell this slot to local businesses.</div>
-    </div>
+    <!-- ROTATING AD CREATIVES — edit AD_CREATIVES in JS to update ads -->
+    <div id="ad-creative-slot" style="margin-bottom:12px;"></div>
     <div class="ad-prog"><div class="ad-fill" id="ad-fill" style="width:0%"></div></div>
     <div style="font-size:11px;color:var(--text-3);">Please wait for the ad to finish…</div>
   </div>
@@ -2530,12 +2557,76 @@ function handleMode(mode) {
 }
 
 /* ══════════════════════════════════════════════════════
-   ADS
+   AD CREATIVES
+   To update ads without changing the HTML file, move
+   these to Firestore in Phase 2. For now edit here.
+   Add as many ads as you want — they rotate randomly.
 ══════════════════════════════════════════════════════ */
+const AD_CREATIVES = [
+
+  // AD 1 — Dark Premium: "Stop watching ads. Go Pro."
+  `<div class="ad-creative dark">
+    <div class="ad-c-label dk">⭐ Guide Pro</div>
+    <div class="ad-c-title dk">Stop watching ads.<br><span>Go Pro.</span></div>
+    <div class="ad-perks">
+      <div class="ad-perk dk"><div class="ad-perk-dot">✓</div>Unlimited quizzes — no restrictions</div>
+      <div class="ad-perk dk"><div class="ad-perk-dot">✓</div>All 4 modes including Exam Mode</div>
+      <div class="ad-perk dk"><div class="ad-perk-dot">✓</div>100 coins every single day</div>
+      <div class="ad-perk dk"><div class="ad-perk-dot">✓</div>Early access to new courses</div>
+    </div>
+    <button class="ad-cta dk" onclick="closeModal('modal-ad');clearInterval(adTimer);openModal('modal-upgrade');">Upgrade on WhatsApp →</button>
+  </div>`,
+
+  // AD 2 — Bold Gold: "Earn 100 coins every day."
+  `<div class="ad-creative gold">
+    <div class="ad-c-label gd">Guide Pro — Upgrade Now</div>
+    <div class="ad-c-title gd">Earn 100 coins<br>every day.</div>
+    <div class="ad-coins-row">
+      <div style="font-size:22px;">🪙</div>
+      <div>
+        <div class="ad-coins-val">+100 coins daily</div>
+        <div class="ad-coins-lbl">Added automatically every time you log in</div>
+      </div>
+    </div>
+    <div class="ad-perks">
+      <div class="ad-perk gd"><div class="ad-perk-dot gd">✓</div>Unlock all quiz modes forever</div>
+      <div class="ad-perk gd"><div class="ad-perk-dot gd">✓</div>Never run out of coins again</div>
+    </div>
+    <button class="ad-cta gd" onclick="closeModal('modal-ad');clearInterval(adTimer);openModal('modal-upgrade');">Get Pro — WhatsApp Fantasy</button>
+  </div>`,
+
+  // AD 3 — Minimal Light: "Everything unlocked."
+  `<div class="ad-creative light-ad">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-family:var(--font-d);font-size:18px;font-weight:700;color:#C9922A;">Guide</div>
+      <div style="background:#C9922A;color:#fff;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:999px;">PRO</div>
+    </div>
+    <div style="height:1px;background:#DDD4C0;margin-bottom:10px;"></div>
+    <div class="ad-c-title lt">Everything unlocked.<br>No limits.</div>
+    <div class="ad-grid">
+      <div class="ad-grid-item"><div class="ad-grid-ico">⏱️</div><div class="ad-grid-txt">Exam Mode</div></div>
+      <div class="ad-grid-item"><div class="ad-grid-ico">📚</div><div class="ad-grid-txt">By Topic</div></div>
+      <div class="ad-grid-item"><div class="ad-grid-ico">🎲</div><div class="ad-grid-txt">Random Mode</div></div>
+      <div class="ad-grid-item"><div class="ad-grid-ico">🪙</div><div class="ad-grid-txt">100 Daily Coins</div></div>
+    </div>
+    <button class="ad-cta lt" onclick="closeModal('modal-ad');clearInterval(adTimer);openModal('modal-upgrade');">Upgrade via WhatsApp →</button>
+  </div>`,
+
+];
+
+function injectRandomAd() {
+  const slot = document.getElementById('ad-creative-slot');
+  if(!slot) return;
+  const pick = AD_CREATIVES[Math.floor(Math.random() * AD_CREATIVES.length)];
+  slot.innerHTML = pick;
+}
+
+
 function watchAd(ctx) {
   adCtx=ctx;
   closeModal('modal-paywall');
   closeModal('modal-mode-locked');
+  injectRandomAd();
   openModal('modal-ad');
   let t=10;
   document.getElementById('ad-ring').textContent=t;
